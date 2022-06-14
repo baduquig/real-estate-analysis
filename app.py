@@ -7,6 +7,7 @@ app = Dash(__name__)
 df = pd.read_csv('./data/zvhi_3bed.csv')
 
 state_dropdown_values = df['State'].unique()
+city_dropdown_values = df['City'].unique()
 
 df = df[df['State']=='AZ']
 df = df[df['City'].isin(['Chandler', 'Tempe', 'Mesa', 'Gilbert'])]
@@ -28,6 +29,12 @@ app.layout = html.Div([
             state_dropdown_values,
             'Select a state',
             id='state',
+            multi=True
+        ),
+        dcc.Dropdown(
+            city_dropdown_values,
+            'Select a city',
+            id='city',
             multi=True
         )
     ]),
