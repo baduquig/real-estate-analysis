@@ -8,6 +8,7 @@ df = pd.read_csv('./data/zvhi_3bed.csv')
 
 state_dropdown_values = df['State'].unique()
 city_dropdown_values = df['City'].unique()
+zipcode_dropdown_values = df['RegionName'].unique()
 
 df = df[df['State']=='AZ']
 df = df[df['City'].isin(['Chandler', 'Tempe', 'Mesa', 'Gilbert'])]
@@ -27,14 +28,20 @@ app.layout = html.Div([
     html.Div([
         dcc.Dropdown(
             state_dropdown_values,
-            'Select a state',
+            'State',
             id='state',
             multi=True
         ),
         dcc.Dropdown(
             city_dropdown_values,
-            'Select a city',
+            'City',
             id='city',
+            multi=True
+        ),
+        dcc.Dropdown(
+            zipcode_dropdown_values,
+            'Zipcode',
+            id='zipcode',
             multi=True
         )
     ]),
