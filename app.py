@@ -10,29 +10,6 @@ df = pd.read_csv('./data/zvhi_3bed.csv')
 state_dropdown_values = df['State'].unique()
 
 
-"""
-def set_plot(data_frame, lowest_level, state, city):
-    print('lowest_level: ' + lowest_level)
-    if lowest_level == 'State':
-        data_frame[data_frame['State'].isin(state)]
-        data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionName', 'RegionType', 'StateName', 'State', 'Metro', 'CountyName'], axis=1)
-        data_frame = data_frame.groupby(['City']).mean()
-        data_frame = data_frame.transpose()
-    elif lowest_level == 'City':
-        data_frame[data_frame['State'].isin(state)]
-        data_frame[data_frame['City'].isin(city)]
-        data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionType', 'StateName', 'State', 'City', 'Metro', 'CountyName'], axis=1)
-        data_frame = data_frame.groupby(['RegionName']).mean()
-        data_frame = data_frame.transpose()
-    else:
-        data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionName', 'RegionType', 'StateName', 'State', 'City', 'Metro', 'CountyName'], axis=1)
-        data_frame = data_frame.mean()
-        data_frame = data_frame.transpose()
-        
-    return data_frame
-"""
-
-
 app.layout = html.Div([
     html.H1('3 bedroom housing prices in the United States'),
 
@@ -65,6 +42,7 @@ app.layout = html.Div([
 ])
 #~~~ End app.layout ~~~#
 
+
 #~~~ Callbacks ~~~#
 @app.callback(
     Output('city', 'options'),
@@ -87,10 +65,33 @@ def set_zip_options(selected_states, selected_cities):
 @app.callback(
     Output('hpi-line-graph', 'figure'),
     Input('state', 'value'),
-    Input('city', 'value')
+    Input('city', 'value'),
+    Input('zipcode', 'value')
 )
-def set_city_plot(selected_states, selected_cities):
+def set_city_plot(selected_states, selected_cities, selected_zipcodes):
     data_frame = df
+
+    if ((selected_states is None) and (selected_cities is None) and (selected_zipcodes is None)):
+        pass
+    elif((selected_cities is None) and (selected_zipcodes is None)):
+        data_frame = data_frame[data_frame['State'].isin(selected_states)]
+        data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionName', 'RegionType', 'State', 'City', 'Metro', 'CountyName'], axis=1)
+    elif(selected_zipcodes is None):
+        data_frame = data_frame[data_frame['State'].isin(selected_states)]
+        data_frame = data_frame[data_frame['City'].isin(selected_cities)]
+        data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionName', 'RegionType', 'StateName', 'State', 'Metro', 'CountyName'], axis=1)
+    else:
+        data_frame = data_frame[data_frame['State'].isin(selected_states)]
+        data_frame = data_frame[data_frame['City'].isin(selected_cities)]
+        data_frame = data_frame[data_frame['RegionName'].isin(selected_zipcodes)]
+        data_frame = data_frame.groupby('RegionName')
+        
+
+    data_frame = data_frame.mean()
+    data_frame = data_frame.transpose()
+    return px.line(data_frame)
+
+    """
     if len(selected_cities) > 0:
         data_frame = data_frame[data_frame['State'].isin(selected_states)]
         data_frame = data_frame[data_frame['City'].isin(selected_cities)]
@@ -101,22 +102,8 @@ def set_city_plot(selected_states, selected_cities):
     data_frame = data_frame.mean()
     data_frame = data_frame.transpose()
     return px.line(data_frame)
+    """
 
-"""
-@app.callback(
-    Output('hpi-line-graph', 'figure'),
-    Input('state', 'value'),
-    Input('city', 'value')
-)
-def set_plot(selected_states, selected_cities):
-    data_frame = df
-    data_frame[data_frame['State'].isin(selected_states)]
-    data_frame[data_frame['City'].isin(selected_cities)]
-    data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionType', 'StateName', 'State', 'City', 'Metro', 'CountyName'], axis=1)
-    data_frame = data_frame.groupby(['RegionName']).mean()
-    data_frame = data_frame.transpose()
-    return px.line(data_frame)
-"""
 #~~~ Callbacks ~~~#
     
 
