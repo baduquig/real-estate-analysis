@@ -33,8 +33,6 @@ def set_plot(data_frame, lowest_level, state, city):
 """
 
 
-fig =px.line(set_plot(df, lowest_level, state, city))
-
 app.layout = html.Div([
     html.H1('3 bedroom housing prices in the United States'),
 
@@ -77,27 +75,48 @@ def set_city_options(selected_states):
     return cities['City'].unique()
 
 @app.callback(
+    Output('zipcode', 'options'),
+    Input('state', 'value'),
+    Input('city', 'value')
+)
+def set_zip_options(selected_states, selected_cities):
+    zip_codes = df[df['State'].isin(list(selected_states))]
+    zip_codes = zip_codes[zip_codes['City'].isin(list(selected_cities))]
+    return zip_codes['RegionName'].unique()
+
+@app.callback(
     Output('hpi-line-graph', 'figure'),
     Input('state', 'value'),
     Input('city', 'value')
 )
-def set_plot(
-    
-)
+def set_city_plot(selected_states, selected_cities):
+    data_frame = df
+    if len(selected_cities) > 0:
+        data_frame = data_frame[data_frame['State'].isin(selected_states)]
+        data_frame = data_frame[data_frame['City'].isin(selected_cities)]
+    else: 
+        data_frame = data_frame[data_frame['State'].isin(selected_states)]
 
-"""@app.callback(
-    Output('city', 'value'),
-    Input('city', 'options')
-)
-def set_city_values(available_cities):
-    return available_cities[['City']]
+    data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionType', 'StateName', 'State', 'City', 'Metro', 'CountyName'], axis=1)
+    data_frame = data_frame.mean()
+    data_frame = data_frame.transpose()
+    return px.line(data_frame)
 
+"""
 @app.callback(
-    Output('zipcode', 'options'),
+    Output('hpi-line-graph', 'figure'),
+    Input('state', 'value'),
     Input('city', 'value')
 )
-def zip_codes(selected_cities):
-    return df[df['RegionName'].isin([selected_cities]).unique()]"""
+def set_plot(selected_states, selected_cities):
+    data_frame = df
+    data_frame[data_frame['State'].isin(selected_states)]
+    data_frame[data_frame['City'].isin(selected_cities)]
+    data_frame = data_frame.drop(['RegionID', 'SizeRank', 'RegionType', 'StateName', 'State', 'City', 'Metro', 'CountyName'], axis=1)
+    data_frame = data_frame.groupby(['RegionName']).mean()
+    data_frame = data_frame.transpose()
+    return px.line(data_frame)
+"""
 #~~~ Callbacks ~~~#
     
 
