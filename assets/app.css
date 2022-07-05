@@ -1,0 +1,29 @@
+body {
+    background-color: #4cace0;
+    font-family: 'Arial, Helvetica, sans-serif';
+    margin: auto 0;
+}
+
+h1 {
+    text-align: center;
+}
+
+.parent-div {
+    margin: 3%;
+}
+
+.inputs-div {
+    margin: 3% 0;
+}
+
+.state-div {
+    display: inline-block;
+}
+
+.city-div {
+    display: inline-block;
+}
+
+.zipcode-div {
+    display: inline-block;
+}

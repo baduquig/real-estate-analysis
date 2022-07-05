@@ -1,9 +1,9 @@
 from dash import Dash, html, dcc, Input, Output
+import dash
 import plotly.express as px
 import pandas as pd
-from tenacity import retry
 
-app = Dash(__name__)
+app = dash.Dash(__name__)
 
 df = pd.read_csv('./data/zvhi_3bed.csv')
 df['Country'] = 'US'
@@ -11,34 +11,57 @@ df['Country'] = 'US'
 state_dropdown_values = df['State'].unique()
 
 
-app.layout = html.Div([
-    html.H1('Zillow API Real Estate Analysis'),
+app.layout = html.Div(
+    className='parent-div', 
+    children=[
+        html.H1('Zillow API Real Estate Analysis'),
 
-    html.Div([
-        html.Label('State'),
-        dcc.Dropdown(
-            state_dropdown_values,
-            id='state',
-            multi=True
+        html.Div(
+            className='inputs-div',
+            
+            children=[
+
+                html.Div(
+                    className='state-div',
+                    children=[
+                        html.Label('State'),
+                        dcc.Dropdown(
+                            state_dropdown_values,
+                            id='state',
+                            multi=True
+                        )
+                    ]
+                ),
+
+                html.Div(
+                    className='city-div',
+                    children=[
+                        html.Label('City'),
+                        dcc.Dropdown(
+                            id='city',
+                            multi=True
+                        )
+                    ]
+                ),
+
+                html.Div(
+                    className='zipcode-div',
+                    children=[
+                        html.Label('Zipcode'),
+                        dcc.Dropdown(
+                            id='zipcode',
+                            multi=True
+                        )
+                    ]
+                )
+            ]
         ),
 
-        html.Label('City'),
-        dcc.Dropdown(
-            id='city',
-            multi=True
-        ),
-
-        html.Label('Zipcode'),
-        dcc.Dropdown(
-            id='zipcode',
-            multi=True
+        dcc.Graph(
+            id='hpi-line-graph'
         )
-    ]),
-
-    dcc.Graph(
-        id='hpi-line-graph'
-    )
-])
+    ] #end parent-div children
+)
 #~~~ End app.layout ~~~#
 
 
@@ -103,8 +126,7 @@ def set_city_plot(selected_states, selected_cities, selected_zipcodes):
     data_frame = data_frame.transpose()
 
     fig = px.line(data_frame, labels={'index': 'Year', 'value': 'Average Price'}, title='3 bedroom housing prices in the United States')
-    #fig.add_scatter(x=[data_frame.iloc[-1].name], y=[data_frame.iloc[-1].values[0]], marker={'color': 'black'}, mode='markers + text', showlegend=False, text='$' + str(round(data_frame.iloc[-1].values[0] / 1000, 1)) + 'K', textposition='top left')
-
+    
     for i in range(int(data_frame.iloc[-1].shape[0])):
         x_coord = data_frame.iloc[-1].name
         y_coord = data_frame.iloc[-1].values[i]        
