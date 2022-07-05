@@ -12,7 +12,7 @@ state_dropdown_values = df['State'].unique()
 
 
 app.layout = html.Div([
-    html.H1('3 bedroom housing prices in the United States'),
+    html.H1('Zillow API Real Estate Analysis'),
 
     html.Div([
         html.Label('State'),
@@ -28,7 +28,7 @@ app.layout = html.Div([
             multi=True
         ),
 
-        html.Label('Zipcode(s)'),
+        html.Label('Zipcode'),
         dcc.Dropdown(
             id='zipcode',
             multi=True
@@ -98,16 +98,17 @@ def set_city_plot(selected_states, selected_cities, selected_zipcodes):
         data_frame = data_frame[data_frame['City'].isin(selected_cities)]
         data_frame = data_frame[data_frame['RegionName'].isin(selected_zipcodes)]
         data_frame = data_frame.groupby('RegionName')
-    
+
     data_frame = data_frame.mean()
     data_frame = data_frame.transpose()
 
-    print(data_frame)
+    fig = px.line(data_frame, labels={'index': 'Year', 'value': 'Average Price'}, title='3 bedroom housing prices in the United States')
+    #fig.add_scatter(x=[data_frame.iloc[-1].name], y=[data_frame.iloc[-1].values[0]], marker={'color': 'black'}, mode='markers + text', showlegend=False, text='$' + str(round(data_frame.iloc[-1].values[0] / 1000, 1)) + 'K', textposition='top left')
 
-    fig = px.line(data_frame, labels={
-        'index': 'Year',
-        'value': 'Average Price'
-    })
+    for i in range(int(data_frame.iloc[-1].shape[0])):
+        x_coord = data_frame.iloc[-1].name
+        y_coord = data_frame.iloc[-1].values[i]        
+        fig.add_scatter(x=[x_coord], y=[y_coord], marker={'color': 'black'}, mode='markers + text', showlegend=False, text='$' + str(round(y_coord / 1000, 1)) + 'K', textposition='top left')
     
     return fig
 
