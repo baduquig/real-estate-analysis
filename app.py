@@ -1,9 +1,8 @@
 from dash import Dash, html, dcc, Input, Output
-import dash
 import plotly.express as px
 import pandas as pd
 
-app = dash.Dash(__name__)
+app = Dash(__name__)
 
 df = pd.read_csv('./data/zvhi_3bed.csv')
 df['Country'] = 'US'
@@ -54,12 +53,23 @@ app.layout = html.Div(
                         )
                     ]
                 )
+
             ]
         ),
 
         dcc.Graph(
-            id='hpi-line-graph'
+            id='hpi-line-graph',
+            style={'border-radius': '50px'}
+        ),
+
+        html.Div(
+            className='disclaimer-div',
+            children=[
+                html.P('Data retrieved from '),
+                html.A('Zillow Research', href='https://www.zillow.com/research/data/')
+            ]
         )
+        
     ] #end parent-div children
 )
 #~~~ End app.layout ~~~#
@@ -126,11 +136,11 @@ def set_city_plot(selected_states, selected_cities, selected_zipcodes):
     data_frame = data_frame.transpose()
 
     fig = px.line(data_frame, labels={'index': 'Year', 'value': 'Average Price'}, title='3 bedroom housing prices in the United States')
-    
+    fig.update_layout(title_x=.5)
     for i in range(int(data_frame.iloc[-1].shape[0])):
         x_coord = data_frame.iloc[-1].name
         y_coord = data_frame.iloc[-1].values[i]        
-        fig.add_scatter(x=[x_coord], y=[y_coord], marker={'color': 'black'}, mode='markers + text', showlegend=False, text='$' + str(round(y_coord / 1000, 1)) + 'K', textposition='top left')
+        fig.add_scatter(x=[x_coord], y=[y_coord], marker={'color': 'black'}, mode='markers + text', showlegend=False, text='$' + str(round(y_coord / 1000, 1)) + 'K', textposition='middle left')
     
     return fig
 
